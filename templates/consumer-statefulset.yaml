@@ -1,0 +1,42 @@
+{{- if .Values.consumer.enabled -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ include "confluent-performance-suite.fullname" . }}-consumer"
+  labels:
+    {{- include "confluent-performance-suite.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.consumer.count }}
+  selector:
+    matchLabels:
+      {{- include "confluent-performance-suite.selectorLabels" . | nindent 6 }}
+      type: consumer
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "confluent-performance-suite.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: consumer
+        image: {{ .Values.consumer.image }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          kafka-consumer-perf-test \
+            --topic {{ .Values.topic.name }}  \
+            --messages {{ .Values.consumer.messagesCount }} \
+            --consumer.config /mnt/kafka.properties \
+            --print-metrics && sleep infinity
+        volumeMounts:
+        - name: kafka-properties
+          mountPath: /mnt
+      volumes:
+        - name: kafka-properties
+          secret:
+            secretName: "{{ include "confluent-performance-suite.fullname" . }}-kafka-client-config"
+{{- end }}

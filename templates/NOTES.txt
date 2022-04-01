@@ -1,0 +1,3 @@
+{{- if .Values.producer.enabled }}
+Producer is enabled for topic {{ .Values.topic.name }}. It will run {{ .Values.producer.count }} replicas.
+{{- end }}

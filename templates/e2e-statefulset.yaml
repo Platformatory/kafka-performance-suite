@@ -1,0 +1,40 @@
+{{- if .Values.e2e.enabled -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ include "confluent-performance-suite.fullname" . }}-e2e"
+  labels:
+    {{- include "confluent-performance-suite.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "confluent-performance-suite.selectorLabels" . | nindent 6 }}
+      type: e2e
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "confluent-performance-suite.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: e2e
+        image: {{ .Values.e2e.image }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          kafka-run-class \ 
+          kafka.tools.EndToEndLatency \ 
+          {{ .Values.broker.url }} {{ .Values.topic.name }} {{ .Values.e2e.recordsCount }} {{ .Values.e2e.ack }} {{ .Values.e2e.recordSizeBytes }} /mnt/kafka.properties && sleep infinity
+        volumeMounts:
+        - name: kafka-properties
+          mountPath: /mnt
+      volumes:
+        - name: kafka-properties
+          secret:
+            secretName: "{{ include "confluent-performance-suite.fullname" . }}-kafka-client-config"
+{{- end }}

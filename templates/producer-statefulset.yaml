@@ -1,0 +1,45 @@
+{{- if .Values.producer.enabled -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ include "confluent-performance-suite.fullname" . }}-producer"
+  labels:
+    {{- include "confluent-performance-suite.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.producer.count }}
+  selector:
+    matchLabels:
+      {{- include "confluent-performance-suite.selectorLabels" . | nindent 6 }}
+      type: producer
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "confluent-performance-suite.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: producer
+        image: {{ .Values.producer.image }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          kafka-producer-perf-test \
+            --topic {{ .Values.topic.name }}  \
+            --num-records {{ .Values.producer.recordsCount }} \
+            --record-size {{ .Values.producer.recordSizeBytes }} \
+            --throughput {{ .Values.producer.throughput }} \
+            --producer-props acks={{ .Values.producer.acks }} \
+            --producer.config /mnt/kafka.properties \
+            --print-metrics && sleep infinity          
+        volumeMounts:
+        - name: kafka-properties
+          mountPath: /mnt
+      volumes:
+        - name: kafka-properties
+          secret:
+            secretName: "{{ include "confluent-performance-suite.fullname" . }}-kafka-client-config"
+{{- end }}
