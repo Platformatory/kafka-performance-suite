@@ -15,16 +15,16 @@ producer:
   recordSizeBytes: 1024
   throughput: "-1"
   acks: "all"
-  count: 1
+  count: 3
 
 consumer:
   enabled: true
   image: "confluentinc/cp-kafka:7.0.1"
   messagesCount: 1000
-  count: 1
+  count: 0
 
 e2e:
-  enabled: true
+  enabled: false
   image: "confluentinc/cp-kafka:7.0.1"
   recordsCount: 1000
   recordSizeBytes: 1024

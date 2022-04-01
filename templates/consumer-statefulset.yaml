@@ -14,10 +14,8 @@ spec:
       type: consumer
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        timestamp: {{ now | quote }}
       labels:
         {{- include "confluent-performance-suite.selectorLabels" . | nindent 8 }}
         type: consumer
