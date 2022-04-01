@@ -1,3 +1,11 @@
 {{- if .Values.producer.enabled }}
 Producer is enabled for topic {{ .Values.topic.name }}. It will run {{ .Values.producer.count }} replicas.
 {{- end }}
+
+{{- if .Values.consumer.enabled }}
+Consumer is enabled for topic {{ .Values.topic.name }}. It will run {{ .Values.consumer.count }} replicas.
+{{- end }}
+
+{{- if .Values.e2e.enabled }}
+End to end latency test is enabled for topic {{ .Values.topic.name }}.
+{{- end }}

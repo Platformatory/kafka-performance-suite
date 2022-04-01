@@ -6,6 +6,7 @@ metadata:
   labels:
     {{- include "confluent-performance-suite.labels" . | nindent 4 }}
 spec:
+  serviceName: "{{ include "confluent-performance-suite.fullname" . }}-producer"
   replicas: {{ .Values.producer.count }}
   selector:
     matchLabels:
@@ -19,16 +20,17 @@ spec:
       {{- end }}
       labels:
         {{- include "confluent-performance-suite.selectorLabels" . | nindent 8 }}
+        type: producer
     spec:
       initContainers:
-      - name: producer
+      - name: topics
         image: {{ .Values.producer.image }}
         command:
         - /bin/sh
         - -c
         - |
           kafka-topics \
-            --if-not-exists
+            --if-not-exists \
             --topic {{ .Values.topic.name }}  \
             --create \
             --bootstrap-server {{ .Values.broker.url }} \
@@ -38,10 +40,6 @@ spec:
         volumeMounts:
         - name: kafka-properties
           mountPath: /mnt
-      volumes:
-        - name: kafka-properties
-          secret:
-            secretName: "{{ include "confluent-performance-suite.fullname" . }}-kafka-client-config"
       containers:
       - name: producer
         image: {{ .Values.producer.image }}

@@ -6,6 +6,7 @@ metadata:
   labels:
     {{- include "confluent-performance-suite.labels" . | nindent 4 }}
 spec:
+  serviceName: "{{ include "confluent-performance-suite.fullname" . }}-consumer"
   replicas: {{ .Values.consumer.count }}
   selector:
     matchLabels:
@@ -19,7 +20,26 @@ spec:
       {{- end }}
       labels:
         {{- include "confluent-performance-suite.selectorLabels" . | nindent 8 }}
+        type: consumer
     spec:
+      initContainers:
+      - name: topics
+        image: {{ .Values.consumer.image }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          kafka-topics \
+            --if-not-exists \
+            --topic {{ .Values.topic.name }}  \
+            --create \
+            --bootstrap-server {{ .Values.broker.url }} \
+            --replication-factor {{ .Values.topic.replicationFactor }}  \
+            --partitions {{ .Values.topic.partitions }}  \
+            --command-config /mnt/kafka.properties
+        volumeMounts:
+        - name: kafka-properties
+          mountPath: /mnt
       containers:
       - name: consumer
         image: {{ .Values.consumer.image }}
@@ -29,6 +49,7 @@ spec:
         - |
           kafka-consumer-perf-test \
             --topic {{ .Values.topic.name }}  \
+            --bootstrap-server {{ .Values.broker.url }} \
             --messages {{ .Values.consumer.messagesCount }} \
             --consumer.config /mnt/kafka.properties \
             --print-metrics && sleep infinity

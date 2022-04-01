@@ -6,6 +6,7 @@ metadata:
   labels:
     {{- include "confluent-performance-suite.labels" . | nindent 4 }}
 spec:
+  serviceName: "{{ include "confluent-performance-suite.fullname" . }}-e2e"
   replicas: 1
   selector:
     matchLabels:
@@ -19,7 +20,26 @@ spec:
       {{- end }}
       labels:
         {{- include "confluent-performance-suite.selectorLabels" . | nindent 8 }}
+        type: e2e
     spec:
+      initContainers:
+      - name: topics
+        image: {{ .Values.e2e.image }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          kafka-topics \
+            --if-not-exists \
+            --topic {{ .Values.topic.name }}  \
+            --create \
+            --bootstrap-server {{ .Values.broker.url }} \
+            --replication-factor {{ .Values.topic.replicationFactor }}  \
+            --partitions {{ .Values.topic.partitions }}  \
+            --command-config /mnt/kafka.properties
+        volumeMounts:
+        - name: kafka-properties
+          mountPath: /mnt
       containers:
       - name: e2e
         image: {{ .Values.e2e.image }}
@@ -27,9 +47,7 @@ spec:
         - /bin/sh
         - -c
         - |
-          kafka-run-class \ 
-          kafka.tools.EndToEndLatency \ 
-          {{ .Values.broker.url }} {{ .Values.topic.name }} {{ .Values.e2e.recordsCount }} {{ .Values.e2e.ack }} {{ .Values.e2e.recordSizeBytes }} /mnt/kafka.properties && sleep infinity
+          kafka-run-class kafka.tools.EndToEndLatency {{ .Values.broker.url }} {{ .Values.topic.name }} {{ .Values.e2e.recordsCount }} {{ .Values.e2e.acks }} {{ .Values.e2e.recordSizeBytes }} /mnt/kafka.properties && sleep infinity
         volumeMounts:
         - name: kafka-properties
           mountPath: /mnt

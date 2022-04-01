@@ -1,6 +1,6 @@
 topic: 
   name: "t1_benchmark"
-  replicationFactor: 1
+  replicationFactor: 3
   partitions: 1
 
 broker:
@@ -18,13 +18,13 @@ producer:
   count: 1
 
 consumer:
-  enabled: false
+  enabled: true
   image: "confluentinc/cp-kafka:7.0.1"
   messagesCount: 1000
   count: 1
 
 e2e:
-  enabled: false
+  enabled: true
   image: "confluentinc/cp-kafka:7.0.1"
   recordsCount: 1000
   recordSizeBytes: 1024
