@@ -1,12 +1,12 @@
 topic: 
   name: "t1_benchmark"
-  replicationFactor: 3
-  partitions: 6
+  replicationFactor: 1
+  partitions: 1
 
 broker:
   url: "pkc-6ojv2.us-west4.gcp.confluent.cloud:9092"
-  username: "XF3B4QU2XOGUUF2A"
-  password: "GF9Y1mz7JOpI0qQs2X76sH1UhtpW6JmndmFmpxzvwOsLWub7OfDKY8ofVjjt8zpg"
+  username: "NU6OWKGDHI4HPWWU"
+  password: "fA/SbrrzjqPJ/KHRdey1Icq+VcP0n30dKGhmZ8xNli9a/Vpctgxx/vwaKl+e25FR"
 
 producer:
   enabled: true
@@ -18,13 +18,13 @@ producer:
   count: 1
 
 consumer:
-  enabled: true
+  enabled: false
   image: "confluentinc/cp-kafka:7.0.1"
   messagesCount: 1000
   count: 1
 
 e2e:
-  enabled: true
+  enabled: false
   image: "confluentinc/cp-kafka:7.0.1"
   recordsCount: 1000
   recordSizeBytes: 1024

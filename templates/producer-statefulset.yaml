@@ -20,6 +20,28 @@ spec:
       labels:
         {{- include "confluent-performance-suite.selectorLabels" . | nindent 8 }}
     spec:
+      initContainers:
+      - name: producer
+        image: {{ .Values.producer.image }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          kafka-topics \
+            --if-not-exists
+            --topic {{ .Values.topic.name }}  \
+            --create \
+            --bootstrap-server {{ .Values.broker.url }} \
+            --replication-factor {{ .Values.topic.replicationFactor }}  \
+            --partitions {{ .Values.topic.partitions }}  \
+            --command-config /mnt/kafka.properties
+        volumeMounts:
+        - name: kafka-properties
+          mountPath: /mnt
+      volumes:
+        - name: kafka-properties
+          secret:
+            secretName: "{{ include "confluent-performance-suite.fullname" . }}-kafka-client-config"
       containers:
       - name: producer
         image: {{ .Values.producer.image }}
