@@ -71,5 +71,5 @@ spec:
       volumes:
         - name: kafka-properties
           secret:
-            secretName: "{{ include "confluent-performance-suite.fullname" . }}-kafka-client-config"
+            secretName: "{{ include "confluent-performance-suite.fullname" . }}-kafka-client-config"            
 {{- end }}

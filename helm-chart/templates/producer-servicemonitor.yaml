@@ -1,0 +1,16 @@
+{{- if .Values.producer.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: "{{ include "confluent-performance-suite.fullname" . }}-producer"
+  labels:
+    {{- include "confluent-performance-suite.labels" . | nindent 4 }}
+    release: {{ .Release.Name }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "confluent-performance-suite.labels" . | nindent 6 }}
+      type: producer
+  endpoints:
+  - port: jmx
+{{- end }}
