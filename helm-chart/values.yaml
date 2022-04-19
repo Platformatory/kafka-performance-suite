@@ -1,3 +1,9 @@
+s3:
+  accessKey: 'AWS S3 access key'
+  secretKey: 'AWS S3 secret key'
+  testPrefix: 'confluent-producer-benckmark'
+  bucket: 's3 bucket name'
+
 topic: 
   name: "t1_benchmark"
   replicationFactor: 3
@@ -29,3 +35,11 @@ e2e:
   recordsCount: 1000
   recordSizeBytes: 1024
   acks: "all"
+
+kubePrometheus:
+  enabled: true
+
+# values for kube-prometheus-stack subchart
+kube-prometheus-stack:
+  grafana:
+    adminPassword: platformatory

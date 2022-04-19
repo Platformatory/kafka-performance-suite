@@ -52,7 +52,21 @@ spec:
             --throughput {{ .Values.producer.throughput }} \
             --producer-props acks={{ .Values.producer.acks }} \
             --producer.config /mnt/kafka.properties \
-            --print-metrics && sleep infinity          
+            --print-metrics > $HOSTNAME.log && \
+          /opt/aws/s3.py $HOSTNAME.log && \
+          sleep infinity
+        imagePullPolicy: Always
+        env:
+        - name: ACCESS_KEY
+          value: {{ .Values.s3.accessKey }}
+        - name: SECRET_KEY
+          value: {{ .Values.s3.secretKey }}
+        - name: TEST_PREFIX
+          value: {{ .Values.s3.testPrefix }}
+        - name: BUCKET
+          value: {{ .Values.s3.bucket }}
+        - name: KAFKA_OPTS
+          value: -javaagent:/usr/app/jmx_prometheus_javaagent-0.15.0.jar=7071:/usr/app/kafka_client.yml
         volumeMounts:
         - name: kafka-properties
           mountPath: /mnt
