@@ -50,6 +50,7 @@ spec:
             --bootstrap-server {{ .Values.broker.url }} \
             --messages {{ .Values.consumer.messagesCount }} \
             --consumer.config /mnt/kafka.properties \
+            --timeout {{ .Values.consumer.timeout }}
             --print-metrics > $HOSTNAME.log && \
           /opt/aws/s3.py $HOSTNAME.log && \
           sleep infinity

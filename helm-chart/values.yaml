@@ -20,14 +20,16 @@ producer:
   recordsCount: 1000
   recordSizeBytes: 1024
   throughput: "-1"
-  acks: "all"
+  acks: 1
   count: 3
+  params: "batch.size=100000 linger.ms=100 compression.type=lz4"
 
 consumer:
   enabled: true
   image: "confluentinc/cp-kafka:7.0.1"
   messagesCount: 1000
-  count: 0
+  count: 1
+  timeout: 100000
 
 e2e:
   enabled: false

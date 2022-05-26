@@ -50,7 +50,7 @@ spec:
             --num-records {{ .Values.producer.recordsCount }} \
             --record-size {{ .Values.producer.recordSizeBytes }} \
             --throughput {{ .Values.producer.throughput }} \
-            --producer-props acks={{ .Values.producer.acks }} \
+            --producer-props acks={{ .Values.producer.acks }} client.id=$HOSTNAME  {{ .Values.producer.params }}\
             --producer.config /mnt/kafka.properties \
             --print-metrics > $HOSTNAME.log && \
           /opt/aws/s3.py $HOSTNAME.log && \
