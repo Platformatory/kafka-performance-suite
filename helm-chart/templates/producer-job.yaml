@@ -43,7 +43,7 @@ spec:
           --num-records {{ .Values.producer.recordsCount }} \
           --record-size {{ .Values.producer.recordSizeBytes }} \
           --throughput {{ .Values.producer.throughput }} \
-          --producer-props acks={{ .Values.producer.acks }} client.id=$HOSTNAME  {{ .Values.producer.params }}\
+          --producer-props acks={{ .Values.producer.acks }} client.id=$HOSTNAME  {{ .Values.producer.params }} \
           --producer.config /mnt/kafka.properties
         env:
         - name: KAFKA_OPTS
