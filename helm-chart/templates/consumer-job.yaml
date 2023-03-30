@@ -1,24 +1,14 @@
 {{- if .Values.consumer.enabled -}}
-apiVersion: apps/v1
-kind: StatefulSet
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: "{{ include "confluent-performance-suite.fullname" . }}-consumer"
+  name: "{{ include "confluent-performance-suite.fullname" . }}-consumer-{{ .Release.Revision }}"
   labels:
     {{- include "confluent-performance-suite.labels" . | nindent 4 }}
+  annotations:
+    timestamp: {{ now | quote }}
 spec:
-  serviceName: "{{ include "confluent-performance-suite.fullname" . }}-consumer"
-  replicas: {{ .Values.consumer.count }}
-  selector:
-    matchLabels:
-      {{- include "confluent-performance-suite.selectorLabels" . | nindent 6 }}
-      type: consumer
   template:
-    metadata:
-      annotations:
-        timestamp: {{ now | quote }}
-      labels:
-        {{- include "confluent-performance-suite.selectorLabels" . | nindent 8 }}
-        type: consumer
     spec:
       initContainers:
       - name: topics
@@ -45,32 +35,32 @@ spec:
         - /bin/sh
         - -c
         - |
+          ./prometheus --enable-feature=agent --config.file="/mnt/prometheus.yml" --log.level=error && \
           kafka-consumer-perf-test \
             --topic {{ .Values.topic.name }}  \
             --bootstrap-server {{ .Values.broker.url }} \
             --messages {{ .Values.consumer.messagesCount }} \
             --consumer.config /mnt/kafka.properties \
             --timeout {{ .Values.consumer.timeout }}
-            --print-metrics > $HOSTNAME.log && \
-          /opt/aws/s3.py $HOSTNAME.log && \
-          sleep infinity
-        imagePullPolicy: Always
         env:
-        - name: ACCESS_KEY
-          value: {{ .Values.s3.accessKey }}
-        - name: SECRET_KEY
-          value: {{ .Values.s3.secretKey }}
-        - name: TEST_PREFIX
-          value: {{ .Values.s3.testPrefix }}
-        - name: BUCKET
-          value: {{ .Values.s3.bucket }}
         - name: KAFKA_OPTS
           value: -javaagent:/usr/app/jmx_prometheus_javaagent-0.15.0.jar=7071:/usr/app/kafka_client.yml
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         volumeMounts:
         - name: kafka-properties
+          mountPath: /mnt
+        - name: prometheus-config
           mountPath: /mnt
       volumes:
         - name: kafka-properties
           secret:
-            secretName: "{{ include "confluent-performance-suite.fullname" . }}-kafka-client-config"            
+            secretName: "{{ include "confluent-performance-suite.fullname" . }}-kafka-client-config"
+        - name: prometheus-config
+          configMap:
+            name: "{{ include "confluent-performance-suite.fullname" . }}-prometheus-config"
+      restartPolicy: Never
+  backoffLimit: 4
 {{- end }}

@@ -1,0 +1,67 @@
+{{- if .Values.producer.enabled -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ include "confluent-performance-suite.fullname" . }}-producer-{{ .Release.Revision }}"
+  labels:
+    {{- include "confluent-performance-suite.labels" . | nindent 4 }}
+  annotations:
+    timestamp: {{ now | quote }}
+spec:
+  template:
+    spec:
+      initContainers:
+      - name: topics
+        image: {{ .Values.producer.image }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          kafka-topics \
+            --if-not-exists \
+            --topic {{ .Values.topic.name }}  \
+            --create \
+            --bootstrap-server {{ .Values.broker.url }} \
+            --replication-factor {{ .Values.topic.replicationFactor }}  \
+            --partitions {{ .Values.topic.partitions }}  \
+            --command-config /mnt/kafka.properties
+        volumeMounts:
+        - name: kafka-properties
+          mountPath: /mnt
+      containers:
+      - name: producer
+        image: {{ .Values.producer.image }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          ./prometheus --enable-feature=agent --config.file="/mnt/prometheus.yml" --log.level=error && \
+          kafka-producer-perf-test \
+          --topic {{ .Values.topic.name }}  \
+          --num-records {{ .Values.producer.recordsCount }} \
+          --record-size {{ .Values.producer.recordSizeBytes }} \
+          --throughput {{ .Values.producer.throughput }} \
+          --producer-props acks={{ .Values.producer.acks }} client.id=$HOSTNAME  {{ .Values.producer.params }}\
+          --producer.config /mnt/kafka.properties
+        env:
+        - name: KAFKA_OPTS
+          value: -javaagent:/usr/app/jmx_prometheus_javaagent-0.15.0.jar=7071:/usr/app/kafka_client.yml
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        volumeMounts:
+        - name: kafka-properties
+          mountPath: /mnt
+        - name: prometheus-config
+          mountPath: /mnt
+      volumes:
+        - name: kafka-properties
+          secret:
+            secretName: "{{ include "confluent-performance-suite.fullname" . }}-kafka-client-config"
+        - name: prometheus-config
+          configMap:
+            name: "{{ include "confluent-performance-suite.fullname" . }}-prometheus-config"
+      restartPolicy: Never
+  backoffLimit: 4
+{{- end }}
