@@ -37,7 +37,7 @@ spec:
         - /bin/sh
         - -c
         - |
-          ./prometheus --enable-feature=agent --config.file="/mnt/prometheus.yml" --log.level=error && \
+          (./prometheus --enable-feature=agent --config.file="/prom/prometheus.yml" --log.level=error & ) && \
           kafka-producer-perf-test \
           --topic {{ .Values.topic.name }}  \
           --num-records {{ .Values.producer.recordsCount }} \

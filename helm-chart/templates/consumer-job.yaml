@@ -8,6 +8,8 @@ metadata:
   annotations:
     timestamp: {{ now | quote }}
 spec:
+  completions: {{ .Values.consumer.count }}
+  parallelism: {{ .Values.consumer.count }}
   template:
     spec:
       initContainers:
@@ -35,7 +37,7 @@ spec:
         - /bin/sh
         - -c
         - |
-          ./prometheus --enable-feature=agent --config.file="/mnt/prometheus.yml" --log.level=error && \
+          (./prometheus --enable-feature=agent --config.file="/prom/prometheus.yml" --log.level=error & ) && \
           kafka-consumer-perf-test \
             --topic {{ .Values.topic.name }}  \
             --bootstrap-server {{ .Values.broker.url }} \
@@ -53,7 +55,7 @@ spec:
         - name: kafka-properties
           mountPath: /mnt
         - name: prometheus-config
-          mountPath: /mnt
+          mountPath: /prom
       volumes:
         - name: kafka-properties
           secret:
