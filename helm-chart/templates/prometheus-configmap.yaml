@@ -27,7 +27,7 @@ data:
             regex: '([^:]+)(:[0-9]+)?'
             replacement: '${1}'
     remote_write:
-      - url: '{{ .Values.prometheus.url }}/api/v1/write'
+{{ toYaml .Values.prometheus.remote_write | indent 6 }}
 kind: ConfigMap
 metadata:
   name: "{{ include "confluent-performance-suite.fullname" . }}-prometheus-config"
