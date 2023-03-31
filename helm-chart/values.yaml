@@ -41,4 +41,8 @@ kube-prometheus-stack:
     adminPassword: platformatory
 
 prometheus:
-  url: "http://localhost:9090"
+  remote_write:
+  - url: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/prometheus/v1/write"
+# Example for New Relic
+  # - url: https://metric-api.newrelic.com/prometheus/v1/write?prometheus_server=kafka-perf-test
+  #   bearer_token: xxxxxxxxxxxxxxxxxxxxxxxxxxx
