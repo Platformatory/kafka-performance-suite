@@ -5,44 +5,36 @@ topic:
 
 broker:
   url: "pkc-6ojv2.us-west4.gcp.confluent.cloud:9092"
-  username: "NU6OWKGDHI4HPWWU"
-  password: "fA/SbrrzjqPJ/KHRdey1Icq+VcP0n30dKGhmZ8xNli9a/Vpctgxx/vwaKl+e25FR"
+  username: "JR7J4VZD3QZRWZHF"
+  password: "nt18VXlr6awSrSif85C8Q+Lq7BVgIrfQPmjkqEQvLVsro1y9Apqjf9UwuLieBgdu"
 
 producer:
   enabled: true
-  image: "confluentinc/cp-kafka:7.0.1"
-  recordsCount: 1000
+  image: "confluentinc/cp-kafka:7.3.2"
+  recordsCount: 10000
   recordSizeBytes: 1024
   throughput: "-1"
   acks: 1
-  count: 3
-  params: "batch.size=100000 linger.ms=100 compression.type=lz4"
+  count: 1
+  params: "batch.size=1000 linger.ms=100 compression.type=lz4"
 
 consumer:
-  enabled: true
-  image: "confluentinc/cp-kafka:7.0.1"
+  enabled: false
+  image: "confluentinc/cp-kafka:7.3.2"
   messagesCount: 1000
   count: 1
   timeout: 100000
 
 e2e:
   enabled: false
-  image: "confluentinc/cp-kafka:7.0.1"
+  image: "confluentinc/cp-kafka:7.3.2"
   recordsCount: 1000
   recordSizeBytes: 1024
   acks: "all"
 
-kubePrometheus:
-  enabled: true
-
-# values for kube-prometheus-stack subchart
-kube-prometheus-stack:
-  grafana:
-    adminPassword: platformatory
-
 prometheus:
   remote_write:
-  - url: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090/prometheus/v1/write"
+  - url: "http://prometheus-operated:9090/prometheus/v1/write"
 # Example for New Relic
   # - url: https://metric-api.newrelic.com/prometheus/v1/write?prometheus_server=kafka-perf-test
   #   bearer_token: xxxxxxxxxxxxxxxxxxxxxxxxxxx

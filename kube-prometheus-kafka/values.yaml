@@ -1,0 +1,6 @@
+kube-prometheus-stack:
+  grafana:
+    adminPassword: platformatory
+    dashboardsConfigMaps:
+      producer: producer-dashboard
+      consumer: consumer-dashboard

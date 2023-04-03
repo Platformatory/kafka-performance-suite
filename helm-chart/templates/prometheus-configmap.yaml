@@ -20,7 +20,7 @@ data:
         static_configs:
           - targets: ["localhost:7071"]
             labels:
-              env: 'dev'
+              env: '{{ .Release.Name }}'
         relabel_configs:
           - source_labels: [__address__]
             target_label: hostname
