@@ -3,6 +3,7 @@ kind: ConfigMap
 metadata:
   labels:
     grafana_dashboard: "1"
+{{- include "kube-prometheus-kafka.labels" . | nindent 4 }}
   name: producer-dashboard
 data:
 {{ (.Files.Glob "conf/kafka-producer.json").AsConfig | indent 2 }}

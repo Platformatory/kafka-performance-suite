@@ -4,3 +4,4 @@ kube-prometheus-stack:
     dashboardsConfigMaps:
       producer: producer-dashboard
       consumer: consumer-dashboard
+    defaultDashboardsEnabled: false
