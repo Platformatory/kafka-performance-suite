@@ -43,7 +43,8 @@ spec:
             --bootstrap-server {{ .Values.broker.url }} \
             --messages {{ .Values.consumer.messagesCount }} \
             --consumer.config /mnt/kafka.properties \
-            --timeout {{ .Values.consumer.timeout }}
+            --timeout {{ .Values.consumer.timeout }} \
+            --group {{ .Release.Name }}-{{ .Release.Revision }}
         env:
         - name: KAFKA_OPTS
           value: -javaagent:/usr/app/jmx_prometheus_javaagent-0.15.0.jar=7071:/usr/app/kafka_client.yml
