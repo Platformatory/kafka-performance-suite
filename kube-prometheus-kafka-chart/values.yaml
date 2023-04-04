@@ -1,7 +1,29 @@
 kube-prometheus-stack:
+  defaultRules:
+    create: false
+
   grafana:
     adminPassword: platformatory
     dashboardsConfigMaps:
       producer: producer-dashboard
       consumer: consumer-dashboard
     defaultDashboardsEnabled: false
+
+  alertmanager:
+    enabled: false
+
+  nodeExporter:
+    enabled: false
+
+  kubeStateMetrics:
+    enabled: false
+
+  prometheusOperator:
+    enabled: true
+
+  kubeApiServer:
+    enabled: false
+
+  prometheus:
+    prometheusSpec:
+      enableRemoteWriteReceiver: true
