@@ -30,4 +30,4 @@ data:
 {{ toYaml .Values.prometheus.remote_write | indent 6 }}
 kind: ConfigMap
 metadata:
-  name: "{{ include "confluent-performance-suite.fullname" . }}-prometheus-config"
+  name: "{{ include "kafka-performance-metrics.fullname" . }}-prometheus-config"

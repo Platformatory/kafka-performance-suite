@@ -2,9 +2,9 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{ include "confluent-performance-suite.fullname" . }}-producer-{{ .Release.Revision }}"
+  name: "{{ include "kafka-performance-metrics.fullname" . }}-producer-{{ .Release.Revision }}"
   labels:
-    {{- include "confluent-performance-suite.labels" . | nindent 4 }}
+    {{- include "kafka-performance-metrics.labels" . | nindent 4 }}
   annotations:
     timestamp: {{ now | quote }}
 spec:
@@ -60,10 +60,10 @@ spec:
       volumes:
         - name: kafka-properties
           secret:
-            secretName: "{{ include "confluent-performance-suite.fullname" . }}-kafka-client-config"
+            secretName: "{{ include "kafka-performance-metrics.fullname" . }}-kafka-client-config"
         - name: prometheus-config
           configMap:
-            name: "{{ include "confluent-performance-suite.fullname" . }}-prometheus-config"
+            name: "{{ include "kafka-performance-metrics.fullname" . }}-prometheus-config"
       restartPolicy: Never
   backoffLimit: 4
 {{- end }}
