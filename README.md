@@ -15,18 +15,25 @@ This Helm chart runs kafka-perf tools in a clound native setting with configurab
 ## Infrastructure
 
 1. A Kubernetes cluster
-2. An S3 bucket
 
 ## Tools
 
 ### Prometheus and Grafana
 
-Prometheus and Grafana already setup in the cluster. If not, enable them as a dependency in current helm chart. NOTE that this is optional and required only if you want to visualize your metrics in Grafana.
+To setup Prometheus and Grafana in your cluster, install the helm chart which will setup both services along with Kafka producer and consumer dashboards.
+
+```sh
+helm upgrade --install prom-stack ./kube-prometheus-kafka-chart -n kafka-benchmarks
+```
+
+
+
+**NOTE** that this is optional and required only if you want to visualize your metrics in Grafana. We highly recommend it.
 
 # Installing this Helm chart
 
-```
-helm upgrade --install pf ./confluent-performance-suite
+```sh
+helm install perf-metrics-scenario-1 ./kafka-performance-metrics-chart -n kafka-benchmarks
 ```
 
 # What the chart does
@@ -37,18 +44,13 @@ There is also an optional end to end latency test pod which can be deployed.
 
 This chart has a batteries-included Pormetheus and Grafana setup which imports the JMX metrics from the client pods automatically.
 
+Finally, it can also be configured to pipe out metrics to any OpenMetrics compatible service, like New Relic.
 
-Every test run is a sequence of Helm chart installation, writing metrics data to S3 and teardown by deleting the Helm chart.
+Every test run is a sequence of Helm chart installation, writing metrics data to Prometheus via and teardown by deleting the Helm chart.
 
 Example scenario to run 3 producers and single consumer:
 
 ```
-s3:
-  accessKey: 'AWS S3 access key'
-  secretKey: 'AWS S3 secret key'
-  testPrefix: 'confluent-producer-benckmark'
-  bucket: 's3 bucket name'
-
 topic: 
   name: "t1_benchmark"
   replicationFactor: 3
@@ -78,9 +80,13 @@ consumer:
 
 e2e:
   enabled: false
+
+prometheus:
+  remote_write:
+  - url: "http://prom-stack-kube-prometheus-prometheus:9090/api/v1/write"
 ```
 
-The above is a sample Helm chart values file to run this scenario. After running the scenario, the metrics will be written to a file in the specified S3 bucket.
+The above is a sample Helm chart values file to run this scenario. After running the scenario, the metrics will be written to the in-cluster Prometheus service.
 
 
 ## Chart parameters
@@ -97,4 +103,4 @@ The above is a sample Helm chart values file to run this scenario. After running
 
 ## Custom container image
 
-There is a provision to build a custom container image to run the metrics. In our case, we added the JMX agent and the "write to S3" python script to the existing base image in the `docker` folder.
+There is a provision to build a custom container image to run the metrics. In our case, we added the Prometheus JMX Java agent and the prometheus binary to the base Confluent image. The idea is to run the Producer and Consumer jobs in push mode, where the Prometheus agent fetches metrics from JMX java agent and ships it off to the Prometheus server.
