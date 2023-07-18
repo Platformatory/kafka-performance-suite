@@ -1,4 +1,4 @@
-A Helm chart to run Kafka benchmarks.
+A batteries-included setup to run Kafka latency-related benchmarks and visualize them.
 
 # Motivation
 
@@ -87,18 +87,6 @@ prometheus:
 ```
 
 The above is a sample Helm chart values file to run this scenario. After running the scenario, the metrics will be written to the in-cluster Prometheus service.
-
-
-## Chart parameters
-
-### Common parameters
-
-| Name                     | Description                                                                             | Value           |
-| ------------------------ | --------------------------------------------------------------------------------------- | --------------- |
-| `s3.accessKey`            | The AWS Access key required to write to S3 bucket.                                                             | `""`            |
-| `s3.secretKey`           | The AWS Secret key required to write to S3 bucket.                                      | `""`            |
-| `s3.testPrefix`       | The name of the scenario in snake-case. This will be the prefix for generated directory when storing in S3.                                          | `""`            |
-| `s3.bucket`          | S3 bucket name.                                                       | `""` |
 
 
 ## Custom container image
